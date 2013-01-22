@@ -10,15 +10,24 @@
         .sound-label {
             display: inline-block;
         }
+
+        .container {
+            width: 940px;
+            margin-left: auto;
+            margin-right: auto;
+            zoom: 1;
+        }
     </style>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
 
-            var actions = {Up: {}, Right: {}, Down: {}, Left: {}, Space: {}, Click: {}};
-            var lsKey = 'makey.makey.soundboard.actions';
+            var action_keys = ['Up', 'Right', 'Down', 'Left', 'Space', 'Click']
+            var ls_key = 'makey.makey.soundboard.actions';
 
-            var ls = localStorage[lsKey];
+            var actions = {};
+
+            var ls = localStorage[ls_key];
             if (ls) {
                 actions = JSON.parse(ls);
                 for (var key in actions) {
@@ -27,11 +36,13 @@
                 }
             }
 
-            for (var key in actions) {
+            for (var i = 0; i < action_keys.length; i++) {
+                var key = action_keys[i];
                 actions[key]['edit'] = key + '-edit';
-                var editModal = $('#edit').clone();
-                editModal.attr('id', actions[key]['edit']);
-                $('body').append(editModal);
+                var edit_modal = $('#edit').clone();
+                edit_modal.attr('id', actions[key]['edit']);
+                edit_modal.find("#header-value").replaceWith('<h3> ' + key + ' </h3>');
+                $('body').append(edit_modal);
 
                 $('#' + actions[key]['edit']).find('#file').on('change', null, key, function (event) {
                     var k = event.data;
@@ -47,7 +58,7 @@
                                     $('#' + k).find('audio source').attr('src', actions[k]['dataUrl']);
                                     $('#' + k).find('.sound-label').append(actions[k]['fileName']);
 
-                                    localStorage[lsKey] = JSON.stringify(actions);
+                                    localStorage[ls_key] = JSON.stringify(actions);
                                 };
                             })(f);
                             reader.readAsDataURL(f);
@@ -58,12 +69,11 @@
 
             $('.controls').find('a').on('click', function () {
 
-                var action = $(this).text();
+                var action = $(this).parents('.controls').attr('id');
 
                 $('#' + actions[action]['edit']).modal({
                     keyboard: true
                 });
-                $('#header-value').text('Edit ' + action);
             });
 
             $('#save').on('click', function () {
@@ -81,35 +91,33 @@
     </script>
 </head>
 <body>
-<div class="page-header">
-    <h1>Makey Makey Sound Board</h1>
-</div>
-<div class="row">
-    <div class="span9">
+<div class="container">
+    <div class="page-header">
+        <h1>Makey Makey Sound Board</h1>
+    </div>
+    <div class="row" style="text-align: center;">
         <form>
-            <div class="row">
-                <div class="span6 offset3">
-                    <div id="Up" class="controls well">
-                        <div>
-                            <div class="sound-label"></div>
-                            <a href="#edit">
-                                <small>Up</small>
-                            </a>
-                        </div>
-                        <audio controls="controls" autobuffer="autobuffer">
-                            <source/>
-                        </audio>
+            <div class="span6 offset3">
+                <div id="Up" class="controls well">
+                    <div>
+                        <div class="sound-label"></div>
+                        <a href="#edit">
+                            <small>edit</small>
+                        </a>
                     </div>
+                    <audio controls="controls" autobuffer="autobuffer">
+                        <source/>
+                    </audio>
                 </div>
             </div>
             <div class="row">
                 <div class="span12">
-                    <div class="span6">
+                    <div class="span5 offset1">
                         <div id="Left" class="controls well">
                             <div>
                                 <div class="sound-label"></div>
                                 <a href="#edit">
-                                    <small>Left</small>
+                                    <small>edit</small>
                                 </a>
                             </div>
                             <audio controls="controls" autobuffer="autobuffer">
@@ -117,12 +125,12 @@
                             </audio>
                         </div>
                     </div>
-                    <div class="offset6">
+                    <div class="span5">
                         <div id="Right" class="controls well">
                             <div>
                                 <div class="sound-label"></div>
                                 <a href="#edit">
-                                    <small>Right</small>
+                                    <small>edit</small>
                                 </a>
                             </div>
                             <audio controls="controls" autobuffer="autobuffer">
@@ -132,80 +140,87 @@
                     </div>
                 </div>
             </div>
+            <div class="span6 offset3">
+                <div id="Down" class="controls well">
+                    <div>
+                        <div class="sound-label"></div>
+                        <a href="#edit">
+                            <small>edit</small>
+                        </a>
+                    </div>
+                    <audio controls="controls" autobuffer="autobuffer">
+                        <source/>
+                    </audio>
+                </div>
+            </div>
+
             <div class="row">
-                <div class="span6 offset3">
-                    <div id="Down" class="controls well">
-                        <div>
-                            <div class="sound-label"></div>
-                            <a href="#edit">
-                                <small>Down</small>
-                            </a>
+                <div class="span12">
+                    <div class="span5 offset1">
+                        <div class="control-group">
+                            <div id="Space" class="controls well">
+                                <div>
+                                    <div class="sound-label"></div>
+                                    <a href="#edit">
+                                        <small>edit</small>
+                                    </a>
+                                </div>
+                                <audio controls="controls" autobuffer="autobuffer">
+                                    <source/>
+                                </audio>
+                            </div>
                         </div>
-                        <audio controls="controls" autobuffer="autobuffer">
-                            <source/>
-                        </audio>
+                    </div>
+                    <div class="span5">
+                        <div class="control-group">
+                            <div id="Click" class="controls well">
+                                <div>
+                                    <div class="sound-label"></div>
+                                    <a href="#edit">
+                                        <small>edit</small>
+                                    </a>
+                                </div>
+                                <audio controls="controls" autobuffer="autobuffer">
+                                    <source/>
+                                </audio>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="control-group">
-                <div id="Space" class="controls well">
-                    <div>
-                        <div class="sound-label"></div>
-                        <a href="#edit">
-                            <small>Space</small>
-                        </a>
-                    </div>
-                    <audio controls="controls" autobuffer="autobuffer">
-                        <source/>
-                    </audio>
-                </div>
-            </div>
-            <div class="control-group">
-
-                <div id="Click" class="controls well">
-                    <div>
-                        <div class="sound-label"></div>
-                        <a href="#edit">
-                            <small>Click</small>
-                        </a>
-                    </div>
-                    <audio controls="controls" autobuffer="autobuffer">
-                        <source/>
-                    </audio>
-                </div>
-            </div>
-            <div class="control-group">
-                <div class="well">
+                <div>
                     <a href="#save" id="save" role="button" class="btn">Save</a>
                 </div>
             </div>
         </form>
-    </div>
 
-    <div id="edit" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">?</button>
-            <h3 id="header-value">Modal header</h3>
-        </div>
-        <div class="modal-body">
-            <p>You can either upload a local file or specify the full URL to an accessible file on the internet to
-                play.</p>
+        <div id="edit" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h3 id="header-value">Modal header</h3>
+            </div>
+            <div class="modal-body">
+                <p>You can either upload a local file or specify the full URL to an accessible file on the internet to
+                    play.</p>
 
-            <form>
-                <fieldset>
-                    <legend>Local file</legend>
-                    <input id="file" type="file" style="line-height: normal;">
-                </fieldset>
-                <fieldset>
-                    <legend>URL</legend>
-                    <input type="text" placeholder="URL">
-                </fieldset>
-                <button type="submit" class="btn">Submit</button>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" data-dismiss="modal">Done</button>
+                <form>
+                    <fieldset>
+                        <legend>Local file</legend>
+                        <input id="file" type="file" style="line-height: normal;">
+                    </fieldset>
+                    <!-- <fieldset>
+                        <legend>URL</legend>
+                        <input type="text" placeholder="URL">
+                    </fieldset>
+                    <button type="submit" class="btn">Submit</button>
+                    -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Done</button>
+            </div>
         </div>
     </div>
 </div>

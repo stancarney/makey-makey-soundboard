@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Makey Makey Sound Board</title>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/css/bootstrap.min.css"/>
+
+    <style type="text/css">
+        .sound-label {
+            display: inline-block;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var actions = {Up: {}, Right: {}, Down: {}, Left: {}, Space: {}, Click: {}};
+            var lsKey = 'makey.makey.soundboard.actions';
+
+            var ls = localStorage[lsKey];
+            if (ls) {
+                actions = JSON.parse(ls);
+                for (var key in actions) {
+                    $('#' + key).find('audio source').attr('src', actions[key]['dataUrl']);
+                    $('#' + key).find('.sound-label').append(actions[key]['fileName']);
+                }
+            }
+
+            for (var key in actions) {
+                actions[key]['edit'] = key + '-edit';
+                var editModal = $('#edit').clone();
+                editModal.attr('id', actions[key]['edit']);
+                $('body').append(editModal);
+
+                $('#' + actions[key]['edit']).find('#file').on('change', null, key, function (event) {
+                    var k = event.data;
+                    var files = event.target.files;
+                    for (var i = 0, f; f = files[i]; i++) {
+                        if (f.type.match('audio.*')) {
+                            var reader = new FileReader();
+                            reader.onload = (function (file) {
+                                return function (e) {
+                                    actions[k]['dataUrl'] = e.target.result;
+                                    actions[k]['fileName'] = file.name;
+
+                                    $('#' + k).find('audio source').attr('src', actions[k]['dataUrl']);
+                                    $('#' + k).find('.sound-label').append(actions[k]['fileName']);
+
+                                    localStorage[lsKey] = JSON.stringify(actions);
+                                };
+                            })(f);
+                            reader.readAsDataURL(f);
+                        }
+                    }
+                });
+            }
+
+            $('.controls').find('a').on('click', function () {
+
+                var action = $(this).text();
+
+                $('#' + actions[action]['edit']).modal({
+                    keyboard: true
+                });
+                $('#header-value').text('Edit ' + action);
+            });
+
+            $('#save').on('click', function () {
+                for (var key in actions) {
+                    var a = $('#' + key).find('audio')[0];
+                    //a.load();
+                    //a.pause();
+                    //a.currentTime = 0;
+                    a.play();
+                }
+            });
+
+
+        });
+    </script>
+</head>
+<body>
+<div class="page-header">
+    <h1>Makey Makey Sound Board</h1>
+</div>
+<div class="row">
+    <div class="span9">
+        <form>
+            <div class="row">
+                <div class="span6 offset3">
+                    <div id="Up" class="controls well">
+                        <div>
+                            <div class="sound-label"></div>
+                            <a href="#edit">
+                                <small>Up</small>
+                            </a>
+                        </div>
+                        <audio controls="controls" autobuffer="autobuffer">
+                            <source/>
+                        </audio>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span12">
+                    <div class="span6">
+                        <div id="Left" class="controls well">
+                            <div>
+                                <div class="sound-label"></div>
+                                <a href="#edit">
+                                    <small>Left</small>
+                                </a>
+                            </div>
+                            <audio controls="controls" autobuffer="autobuffer">
+                                <source/>
+                            </audio>
+                        </div>
+                    </div>
+                    <div class="offset6">
+                        <div id="Right" class="controls well">
+                            <div>
+                                <div class="sound-label"></div>
+                                <a href="#edit">
+                                    <small>Right</small>
+                                </a>
+                            </div>
+                            <audio controls="controls" autobuffer="autobuffer">
+                                <source/>
+                            </audio>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span6 offset3">
+                    <div id="Down" class="controls well">
+                        <div>
+                            <div class="sound-label"></div>
+                            <a href="#edit">
+                                <small>Down</small>
+                            </a>
+                        </div>
+                        <audio controls="controls" autobuffer="autobuffer">
+                            <source/>
+                        </audio>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div id="Space" class="controls well">
+                    <div>
+                        <div class="sound-label"></div>
+                        <a href="#edit">
+                            <small>Space</small>
+                        </a>
+                    </div>
+                    <audio controls="controls" autobuffer="autobuffer">
+                        <source/>
+                    </audio>
+                </div>
+            </div>
+            <div class="control-group">
+
+                <div id="Click" class="controls well">
+                    <div>
+                        <div class="sound-label"></div>
+                        <a href="#edit">
+                            <small>Click</small>
+                        </a>
+                    </div>
+                    <audio controls="controls" autobuffer="autobuffer">
+                        <source/>
+                    </audio>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="well">
+                    <a href="#save" id="save" role="button" class="btn">Save</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="edit" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">?</button>
+            <h3 id="header-value">Modal header</h3>
+        </div>
+        <div class="modal-body">
+            <p>You can either upload a local file or specify the full URL to an accessible file on the internet to
+                play.</p>
+
+            <form>
+                <fieldset>
+                    <legend>Local file</legend>
+                    <input id="file" type="file" style="line-height: normal;">
+                </fieldset>
+                <fieldset>
+                    <legend>URL</legend>
+                    <input type="text" placeholder="URL">
+                </fieldset>
+                <button type="submit" class="btn">Submit</button>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" data-dismiss="modal">Done</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
